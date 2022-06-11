@@ -17,5 +17,32 @@
      <None Remove="MonoDevelop.SourceEditor2" />
      <None Remove="MonoDevelop.TextEditor" />
      <None Remove="MonoDevelop.TextEditor.Cocoa" />
+     <None Remove="Preferences\" />
+   </ItemGroup>
+   <ItemGroup>
+     <EmbeddedResource Include="Resources\vs-prefs-power.png">
+       <LogicalName>vs-prefs-power.png</LogicalName>
+     </EmbeddedResource>
+     <EmbeddedResource Include="Resources\vs-prefs-power_dark.png">
+       <LogicalName>vs-prefs-power_dark.png</LogicalName>
+     </EmbeddedResource>
+     <EmbeddedResource Include="Resources\vs-prefs-power_dark%402x.png">
+       <LogicalName>vs-prefs-power_dark%402x.png</LogicalName>
+     </EmbeddedResource>
+     <EmbeddedResource Include="Resources\vs-prefs-power_sel.png">
+       <LogicalName>vs-prefs-power_sel.png</LogicalName>
+     </EmbeddedResource>
+     <EmbeddedResource Include="Resources\vs-prefs-power_sel%402x.png">
+       <LogicalName>vs-prefs-power_sel%402x.png</LogicalName>
+     </EmbeddedResource>
+     <EmbeddedResource Include="Resources\vs-prefs-power%402x.png">
+       <LogicalName>vs-prefs-power%402x.png</LogicalName>
+     </EmbeddedResource>
+   </ItemGroup>
+   <ItemGroup>
+     <ProjectReference Include="..\PowerMode.Cocoa\PowerMode.Cocoa.csproj" />
+   </ItemGroup>
+   <ItemGroup>
+     <Folder Include="Preferences\" />
    </ItemGroup>
 </Project>
