@@ -5,7 +5,7 @@ using Mono.Addins.Description;
 [assembly: Addin(
 	"PowerMode",
 	Namespace = "VisualStudio",
-	Version = "0.6"
+	Version = "0.8.1"
 )]
 
 [assembly: AddinName("Power Mode")]
