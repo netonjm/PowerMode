@@ -9,12 +9,12 @@
     <EnableCodeSigning>false</EnableCodeSigning>
   </PropertyGroup>
 
-<!--  <PropertyGroup>
+  <PropertyGroup>
         <TargetFramework>net6.0-macos</TargetFramework>
          <SupportedOSPlatformVersion>10.14</SupportedOSPlatformVersion>
-  </PropertyGroup>-->
+  </PropertyGroup>
 
-  
+  <!--
 <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
         <TargetFramework>net6.0</TargetFramework>
   </PropertyGroup>
@@ -28,6 +28,6 @@
       <HintPath>\Applications\Visual Studio %28Preview%29.app\Contents\MonoBundle\Xamarin.Mac.dll</HintPath>
       <Private>False</Private>
     </Reference>
-  </ItemGroup>
+  </ItemGroup>-->
 
 </Project>
