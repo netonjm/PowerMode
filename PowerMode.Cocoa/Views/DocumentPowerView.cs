@@ -62,7 +62,7 @@ namespace PowerMode.Cocoa.Views
             bonusTextField = NSTextField.CreateLabel("Level Up!!");
             bonusTextField.Alignment = NSTextAlignment.Center;
             bonusTextField.Font = NSFont.BoldSystemFontOfSize(DefaultFontSize);
-            bonusTextField.TextColor = NSColor.SystemRedColor;
+            bonusTextField.TextColor = NSColor.SystemRed;
             AddSubview(bonusTextField);
             bonusTextField.AddShadow(NSColor.Red);
 
