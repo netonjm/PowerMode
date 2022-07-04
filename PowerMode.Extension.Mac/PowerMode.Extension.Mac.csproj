@@ -2,16 +2,15 @@
   <PropertyGroup>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net6.0-macos</TargetFramework>
     <SupportedOSPlatformVersion>10.14</SupportedOSPlatformVersion>
   </PropertyGroup>
   <ItemGroup>
     <AddinReference Include="MonoDevelop.SourceEditor2" />
     <AddinReference Include="MonoDevelop.TextEditor" />
-    <AddinReference Include="MonoDevelop.TextEditor.Cocoa" />
   </ItemGroup>
    <ItemGroup>
-        <PackageReference Include="Microsoft.VisualStudioMac.Sdk" Version="17.0.0-preview.7955" />
+        <PackageReference Include="Microsoft.VisualStudioMac.Sdk" Version="17.0.0" />
    </ItemGroup>
    <ItemGroup>
      <None Remove="MonoDevelop.SourceEditor2" />
@@ -42,7 +41,5 @@
    <ItemGroup>
      <ProjectReference Include="..\PowerMode.Cocoa\PowerMode.Cocoa.csproj" />
    </ItemGroup>
-   <ItemGroup>
-     <Folder Include="Preferences\" />
-   </ItemGroup>
+
 </Project>
