@@ -5,8 +5,7 @@ namespace PowerMode.Example.Cocoa;
 
 public partial class ViewController : NSViewController {
 
-    LevelManager counter;
-
+    Level currentLevel;
     DocumentPowerView gameLayer;
 	ViewFrameChanged changed;
 
@@ -25,10 +24,10 @@ public partial class ViewController : NSViewController {
         changed = new ViewFrameChanged();
         View = changed;
 
-        counter = new LevelManager();
+        currentLevel = new Level();
 
         // Do any additional setup after loading the view.
-        gameLayer = new DocumentPowerView(counter);
+        gameLayer = new DocumentPowerView(currentLevel);
 
         offsetX = new NSTextField()
         {
@@ -96,7 +95,7 @@ public partial class ViewController : NSViewController {
 
         textField.TextDidChange += Button_Activated;
 
-        counter.LevelChanged += Counter_LevelChanged;
+        currentLevel.LevelChanged += Counter_LevelChanged;
 
         combo.SelectItem(0);
         Combo_Activated(combo, EventArgs.Empty);

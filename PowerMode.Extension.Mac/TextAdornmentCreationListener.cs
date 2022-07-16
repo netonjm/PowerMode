@@ -4,11 +4,14 @@ using System.ComponentModel.Composition;
 using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Editor;
 using Microsoft.VisualStudio.Utilities;
+using MonoDevelop.Components.Commands;
+using MonoDevelop.Ide.Composition;
+using MonoDevelop.Ide.Gui.Documents;
 
 namespace PowerMode.Extension.Mac
 {
     [Export(typeof(ICocoaTextViewCreationListener))]
-    [ContentType("text")]
+    [ContentType("any")]
     [TextViewRole(PredefinedTextViewRoles.Document)]
     public class TextAdornmentCreationListener : ICocoaTextViewCreationListener
     {
@@ -22,16 +25,13 @@ namespace PowerMode.Extension.Mac
         private AdornmentLayerDefinition editorAdornmentLayer;
 
         [Import]
+        public IDocumentPowerSession Session { get; set; }
+
+        [Import]
         public ITextDocumentFactoryService textDocumentFactory { get; set; }
 
         public void TextViewCreated(ICocoaTextView textView)
-        {
-            MonoDevelop.Core.Runtime.RunInMainThread(() =>
-            {
-                Session.Current.Attach(textView, textDocumentFactory);
-            });
-           
-        }
+            => MonoDevelop.Core.Runtime.RunInMainThread(() => Session.SetTextView(textView));
     }
 }
 

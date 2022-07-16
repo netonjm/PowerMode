@@ -51,11 +51,11 @@ namespace PowerMode.Cocoa.Views
             set => numberTextField.Hidden = !value;
         }
 
-        ICounterProvider counterProvider;
+        Level currentLevel;
 
-        public DocumentPowerView(ICounterProvider counterProvider)
+        public DocumentPowerView(Level level)
         {
-            this.counterProvider = counterProvider;
+            this.currentLevel = level;
 
             WantsLayer = true;
 
@@ -157,7 +157,7 @@ namespace PowerMode.Cocoa.Views
             cursorImageView.Frame = new CGRect(Cursor.X + Offset.X, Cursor.Y + Offset.Y, Size, Size);
         }
 
-        void RefreshCurrentLevel() => levelTextField.StringValue = String.Format("Level: {0}", counterProvider.GetCurrentDescription());
+        void RefreshCurrentLevel() => levelTextField.StringValue = String.Format("Level: {0}", currentLevel.GetCurrentDescription());
 
         public void ShowCurrentLevel()
         {
@@ -188,7 +188,7 @@ namespace PowerMode.Cocoa.Views
             if (powerMode == null)
                 return;
 
-            counterProvider.Step();
+            currentLevel.Step();
             Refresh();
             StartCounter();
         }
@@ -243,7 +243,7 @@ namespace PowerMode.Cocoa.Views
         public void ClearAll()
         {
             bonusTextField.Hidden = numberTextField.Hidden = progressBar.Hidden = true;
-            counterProvider.Reset();
+            currentLevel.Reset();
             RefreshCurrentLevel();
             Refresh();
         }
@@ -255,9 +255,9 @@ namespace PowerMode.Cocoa.Views
 
         void Refresh()
         {
-            numberTextField.StringValue = string.Format("{0}×", counterProvider.Count);
+            numberTextField.StringValue = string.Format("{0}×", currentLevel.Count);
 
-            var powerModeCombo = this.isPowermodeActive ? counterProvider.Count - this.initialPowermodeCombo : 0;
+            var powerModeCombo = this.isPowermodeActive ? currentLevel.Count - this.initialPowermodeCombo : 0;
 
             var styleCount = Math.Min(powerModeCombo, 20);
 

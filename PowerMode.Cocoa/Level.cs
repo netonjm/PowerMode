@@ -1,8 +1,8 @@
 ﻿namespace PowerMode
 {
-    public class LevelManager : ICounterProvider
+    public class Level
     {
-        public event EventHandler LevelChanged;
+        public event EventHandler Changed;
 
         static string[] descriptions = new string[]
         {
@@ -12,8 +12,6 @@
             "Master",
             "🔥🔥God🔥🔥"
         };
-
-        const int MaxLevel = 4;
 
         public int CurrentLevel { get; private set; } = 0;
 
@@ -46,7 +44,7 @@
             {
                 CurrentLevel++;
                 step = 0;
-                LevelChanged?.Invoke(this, EventArgs.Empty);
+                Changed?.Invoke(this, EventArgs.Empty);
             }
         }
 
