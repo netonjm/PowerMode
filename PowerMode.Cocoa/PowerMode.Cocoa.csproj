@@ -1,6 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Library</OutputType>
+    <TargetFramework>net6.0-macos</TargetFramework>
+    <SupportedOSPlatformVersion>10.14</SupportedOSPlatformVersion>
     <Nullable>enable</Nullable>
     <UseSGen>false</UseSGen>
     <LinkMode>None</LinkMode>
@@ -8,26 +10,4 @@
     <ImplicitUsings>true</ImplicitUsings>
     <EnableCodeSigning>false</EnableCodeSigning>
   </PropertyGroup>
-
-  <PropertyGroup>
-        <TargetFramework>net6.0-macos</TargetFramework>
-         <SupportedOSPlatformVersion>10.14</SupportedOSPlatformVersion>
-  </PropertyGroup>
-
-  <!--
-<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-        <TargetFramework>net6.0</TargetFramework>
-  </PropertyGroup>
-
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-        <TargetFramework>net6.0</TargetFramework>
-  </PropertyGroup>
-
-   <ItemGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
-    <Reference Include="Xamarin.Mac">
-      <HintPath>\Applications\Visual Studio %28Preview%29.app\Contents\MonoBundle\Xamarin.Mac.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-  </ItemGroup>-->
-
 </Project>

@@ -6,15 +6,16 @@ using CoreGraphics;
 using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Editor;
 using Microsoft.VisualStudio.Text.Formatting;
+using Microsoft.Win32;
 using PowerMode.Cocoa.Views;
 using PowerMode.Utils;
 using static Microsoft.VisualStudio.Shell.ThreadedWaitDialogHelper;
 
 namespace PowerMode
 {
-    [Export(typeof(IDocumentPowerSession))]
+    [Export(typeof(IPowerModeSession))]
     [PartCreationPolicy(CreationPolicy.Shared)]
-    public class DocumentPowerSession : IDocumentPowerSession
+    public class PowerModeSession : IPowerModeSession
     {
         bool shakeEnabled = true;
         public bool ShakeEnabled
@@ -48,15 +49,12 @@ namespace PowerMode
             }
         }
 
-        bool counterEnabled;
-        public bool IsCounterEnabled
+        public bool IsLevelVisible
         {
-            get => counterEnabled;
+            get => DocumentPowerView.LevelVisible;
             set
             {
-                if (counterEnabled == value)
-                    return;
-                counterEnabled = value;
+                DocumentPowerView.LevelVisible = value;
             }
         }
 
@@ -70,8 +68,6 @@ namespace PowerMode
             get => powerModeIndex;
             set
             {
-                if (powerModeIndex == value)
-                    return;
                 powerModeIndex = value;
             }
         }
@@ -82,39 +78,39 @@ namespace PowerMode
         const double DeltaTop = 20;
 
         private ITextDocument textDocument;
-        private IXPlatAdornmentLayer adornmentLayer;
+        private IXPlatAdornmentLayer powerModeAdornment;
 
         public Level Level { get; }
         public DocumentPowerView DocumentPowerView { get; }
+      
         public ICocoaTextView TextView { get; private set; }
 
-        public DocumentPowerSession()
+        public PowerModeSession()
         {
             this.Level = new Level();
-            DocumentPowerView = new DocumentPowerView(Level);
-            DocumentPowerView.Offset = new CGPoint(-25, -30);
-            DocumentPowerView.Size = 50;
+            DocumentPowerView = new DocumentPowerView(Level)
+            {
+                Offset = new CGPoint(-25, -30),
+                Size = 50
+            };
 
             //initial values
-            isEnabled = Settings.GetBool(SettingsPropperties.IsEnabled);
+            IsEnabled = Settings.GetBool(SettingsPropperties.IsEnabled);
+            IsLevelVisible = Settings.GetBool(SettingsPropperties.IsLevelVisible);
             shakeEnabled = Settings.GetBool(SettingsPropperties.ShakeEnabled);
-            IsCounterEnabled = Settings.GetBool(SettingsPropperties.CounterEnabled);
             powerModeIndex = Settings.GetInt(SettingsPropperties.PowerModeIndex);
         }
 
-        public void SetTextView(ICocoaTextView view)
+        public void Configure(ICocoaTextView view)
         {
-            if (this.TextView == view)
-                return;
-
             Unregister();
 
             this.TextView = view ?? throw new ArgumentNullException("view");
-            adornmentLayer = view.GetXPlatAdornmentLayer("PowerModeAdornment");
-            adornmentLayer.AddAdornment(AdornmentPositioningBehavior.ViewportRelative, null, null, DocumentPowerView, null);
+
+            powerModeAdornment = view.GetXPlatAdornmentLayer("PowerModeAdornment");
+            powerModeAdornment.AddAdornment(AdornmentPositioningBehavior.ViewportRelative, null, null, DocumentPowerView, null);
 
             SuscribeEvents();
-
             RecalculateGameViewFrame();
         }
 
@@ -124,10 +120,10 @@ namespace PowerMode
             {
                 UnsuscribeEvents();
 
-                adornmentLayer.RemoveAdornment(DocumentPowerView);
-
+                powerModeAdornment?.RemoveAdornment(DocumentPowerView);
+               
                 this.TextView = null;
-                adornmentLayer = null;
+                powerModeAdornment = null;
             }
         }
 
@@ -213,7 +209,7 @@ namespace PowerMode
                         );
                     this.DocumentPowerView.Step();
 
-                    if (ShakeEnabled && this.DocumentPowerView.TryGetSelectedPowerMode(out var powerModeItem) && powerModeItem.ShakeIntensity > 0)
+                    if (ShakeEnabled)
                     {
                         ShakeAsync(delta).ConfigureAwait(false);
                     }

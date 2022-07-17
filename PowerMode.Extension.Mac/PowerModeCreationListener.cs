@@ -13,7 +13,7 @@ namespace PowerMode.Extension.Mac
     [Export(typeof(ICocoaTextViewCreationListener))]
     [ContentType("any")]
     [TextViewRole(PredefinedTextViewRoles.Document)]
-    public class TextAdornmentCreationListener : ICocoaTextViewCreationListener
+    public class PowerModeCreationListener : ICocoaTextViewCreationListener
     {
         /// <summary>
         /// Defines the adornment layer for the scarlet adornment. This layer is ordered
@@ -25,13 +25,13 @@ namespace PowerMode.Extension.Mac
         private AdornmentLayerDefinition editorAdornmentLayer;
 
         [Import]
-        public IDocumentPowerSession Session { get; set; }
+        public IPowerModeSession Session { get; set; }
 
         [Import]
         public ITextDocumentFactoryService textDocumentFactory { get; set; }
 
         public void TextViewCreated(ICocoaTextView textView)
-            => MonoDevelop.Core.Runtime.RunInMainThread(() => Session.SetTextView(textView));
+            => MonoDevelop.Core.Runtime.RunInMainThread(() => Session.Configure(textView));
     }
 }
 

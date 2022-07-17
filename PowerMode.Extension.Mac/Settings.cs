@@ -8,7 +8,11 @@ namespace PowerMode
     {
         PowerModeIndex,
         IsEnabled,
-        CounterEnabled,
+        IsBackgroundEnabled,
+        BackgroundDuration,
+        BackgroundOpacity,
+        BackgroundFileName,
+        IsLevelVisible,
         ModeTimeout,
         ShakeEnabled,
     }
@@ -37,5 +41,11 @@ namespace PowerMode
 
         public static void SetInt(SettingsPropperties property, int variable)
             => NSUserDefaults.StandardUserDefaults.SetInt(variable, GetPropertyName(property));
+
+        public static float GetFloat(SettingsPropperties propperty)
+        => (float)NSUserDefaults.StandardUserDefaults.FloatForKey(GetPropertyName(propperty));
+
+        public static void SetFloat(SettingsPropperties property, float variable)
+            => NSUserDefaults.StandardUserDefaults.SetFloat(variable, GetPropertyName(property));
     }
 }

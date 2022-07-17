@@ -16,6 +16,7 @@
      <None Remove="MonoDevelop.SourceEditor2" />
      <None Remove="MonoDevelop.TextEditor" />
      <None Remove="Preferences\" />
+     <None Remove="Resources\matrix1.gif" />
    </ItemGroup>
    <ItemGroup>
      <EmbeddedResource Include="Resources\vs-prefs-power.png">
@@ -35,6 +36,9 @@
      </EmbeddedResource>
      <EmbeddedResource Include="Resources\vs-prefs-power%402x.png">
        <LogicalName>vs-prefs-power%402x.png</LogicalName>
+     </EmbeddedResource>
+     <EmbeddedResource Include="Resources\matrix1.gif">
+       <LogicalName>matrix1.gif</LogicalName>
      </EmbeddedResource>
    </ItemGroup>
    <ItemGroup>

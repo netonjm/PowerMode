@@ -9,7 +9,7 @@ namespace PowerMode
 
     public class GifUrlPowerModeItem : PowerModeItem
     {
-        public string[] Urls { get; set; }
+        public NSUrl[] Urls { get; set; }
     }
    
     public enum ExplosionOrder
@@ -25,12 +25,14 @@ namespace PowerMode
 
         public string Description { get; set; }
 
+        /// <summary>
+        /// In miliseconds
+        /// </summary>
         public float ExplosionDuration { get; set; }
         public float ExplosionSize { get; set; }
         public float MaxExplosions { get; set; }
 
         public int ShakeIntensity { get; set; }
-
 
         public CGPoint Offset { get; set; }
     }

@@ -19,9 +19,15 @@ namespace PowerMode
 
         void Workbench_ActiveDocumentChanged(object sender, MonoDevelop.Ide.Gui.DocumentEventArgs e)
         {
-            IDocumentPowerSession session = CompositionManager.Instance.GetExportedValue<IDocumentPowerSession>();
             ICocoaTextView textView = e.Document.GetContent<ICocoaTextView>();
-            session.SetTextView(textView);
+
+            IBackgroundSession background = CompositionManager.Instance.GetExportedValue<IBackgroundSession>();
+            if (background != null)
+                background.Configure(textView);
+
+            IPowerModeSession session = CompositionManager.Instance.GetExportedValue<IPowerModeSession>();
+            if (session != null)
+                session.Configure(textView);
         }
     }
 }

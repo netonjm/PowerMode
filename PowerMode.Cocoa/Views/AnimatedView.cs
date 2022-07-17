@@ -16,10 +16,22 @@ namespace PowerMode.Cocoa.Views
 
         PowerModeItem lastItem;
 
-        public double Duration { get; set; } = 1;
+        public float RepeatCount { get; set; } = 1;
 
-        public AnimatedView()
+        /// <summary>
+        /// In seconds
+        /// </summary>
+        public float Duration { get; set; } = 1;
+
+        public override NSView HitTest(CGPoint aPoint)
         {
+            return null;
+        }
+
+        readonly string identifier;
+        public AnimatedView(string identifier)
+        {
+            this.identifier = identifier;
             WantsLayer = true;
         }
 
@@ -56,10 +68,10 @@ namespace PowerMode.Cocoa.Views
             ProcessImageSource(data);
         }
 
-        void ProcessUrl(string url)
+        void ProcessUrl(NSUrl url)
         {
             frames.Clear();
-            var data = NSData.FromUrl(new NSUrl(url));
+            NSData data = NSData.FromUrl(url);
             ProcessImageSource(data);
         }
 
@@ -77,9 +89,9 @@ namespace PowerMode.Cocoa.Views
 
         void Stop()
         {
-            if (Layer.AnimationKeys != null && Layer.AnimationKeys.Contains("ContentsAnimation"))
+            if (Layer.AnimationKeys != null && Layer.AnimationKeys.Contains(identifier))
             {
-                Layer.RemoveAnimation("ContentsAnimation");
+                Layer.RemoveAnimation(identifier);
             }
         }
 
@@ -91,8 +103,7 @@ namespace PowerMode.Cocoa.Views
             animation.CalculationMode = CoreAnimation.CAKeyFrameAnimation.AnimationDiscrete;
             animation.Duration = Duration;
             animation.RemovedOnCompletion = false;
-
-            animation.RepeatCount = 1;
+            animation.RepeatCount = RepeatCount;
 
             //if (lastItem.GifMode == GifMode.Continue)
             //{
@@ -105,7 +116,7 @@ namespace PowerMode.Cocoa.Views
 
             animation.BeginTime = 0;
             animation.Values = frames.ToArray();
-            Layer.AddAnimation(animation, "ContentsAnimation");
+            Layer.AddAnimation(animation, identifier);
         }
     }
 }

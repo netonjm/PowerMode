@@ -1,9 +1,4 @@
-﻿using AppKit;
-using CoreGraphics;
-using Foundation;
-using ObjCRuntime;
-
-namespace PowerMode.Cocoa.Views
+﻿namespace PowerMode.Cocoa.Views
 {
     public class DocumentPowerView : NSControl
     {
@@ -14,15 +9,14 @@ namespace PowerMode.Cocoa.Views
         NSTextField numberTextField;
         ProgressBar progressBar;
         AnimatedView cursorImageView;
+        Level currentLevel;
 
         nfloat TopMarginSeparation = 10;
         nfloat RightMarginSeparation = 0;
-        nfloat ItemMarginSeparation = 20;
 
         bool isPowermodeActive = true;
 
         float initialPowermodeCombo = 0;
-        float comboCounterSize = 1;
         float frameCount = 0;
 
         const float defaultFont = 31;
@@ -30,7 +24,6 @@ namespace PowerMode.Cocoa.Views
         const float sizeModifier = 5;
 
         const int TextFadeoutTimeout = 1000;
-        const int DefaultLevelWidth = 200;
         const int ItemSeparation = 0;
 
         const int DefaultFontSize = 20;
@@ -46,12 +39,22 @@ namespace PowerMode.Cocoa.Views
 
         public bool Shake { get; set; }
 
-        public bool TimerVisible {
-            get => !numberTextField.Hidden;
-            set => numberTextField.Hidden = !value;
+        bool levelVisible = true;
+        public bool LevelVisible
+        {
+            get => levelVisible;
+            set
+            {
+                levelVisible = value;
+                levelTextField.Hidden = !value;
+                if (!value)
+                {
+                    bonusTextField.Hidden = true;
+                    numberTextField.Hidden = true;
+                    progressBar.Hidden = true;
+                }
+            }
         }
-
-        Level currentLevel;
 
         public DocumentPowerView(Level level)
         {
@@ -86,7 +89,7 @@ namespace PowerMode.Cocoa.Views
             AddSubview(progressBar);
             progressBar.ShadowColor = NSColor.Red;
 
-            cursorImageView = new AnimatedView();
+            cursorImageView = new AnimatedView("ContentsAnimation");
             AddSubview(cursorImageView);
 
             RefreshCurrentLevel();
@@ -102,9 +105,10 @@ namespace PowerMode.Cocoa.Views
             Offset = powerMode.Offset;
             //Offset = new CGPoint(-25, -30);
             Size = powerMode.ExplosionSize * sizeModifier;
-            cursorImageView.Duration = powerMode.ExplosionDuration / 1000f;
-
             cursorImageView.Process(powerMode);
+
+            //from miliseconds to seconds
+            cursorImageView.Duration = powerMode.ExplosionDuration/1000f;
 
             Reposition();
             Refresh();
@@ -168,17 +172,23 @@ namespace PowerMode.Cocoa.Views
 
             bonusTextField.StringValue = "Level Up!";
             bonusTextField.AlphaValue = 0;
-            bonusTextField.Hidden = false;
+
+            if (levelVisible)
+                bonusTextField.Hidden = false;
 
             Refresh();
-            bonusTextField.FadeInAnimation();
-            Task.Delay(TextFadeoutTimeout).ContinueWith(s =>
+
+            if (levelVisible)
             {
-                AppKit.NSApplication.SharedApplication.InvokeOnMainThread(() =>
+                bonusTextField.FadeInAnimation();
+                Task.Delay(TextFadeoutTimeout).ContinueWith(s =>
                 {
-                    bonusTextField.FadeOutAnimation(resultHandler: () => bonusTextField.Hidden = true);
+                    AppKit.NSApplication.SharedApplication.InvokeOnMainThread(() =>
+                    {
+                        bonusTextField.FadeOutAnimation(resultHandler: () => bonusTextField.Hidden = true);
+                    });
                 });
-            });
+            }
         }
 
         NSTimer timer;
@@ -195,10 +205,13 @@ namespace PowerMode.Cocoa.Views
 
         void StartCounter()
         {
-            numberTextField.Hidden = progressBar.Hidden = false;
-
             //init animation
             cursorImageView.Process(powerMode);
+
+            if (!LevelVisible)
+                return;
+
+            numberTextField.Hidden = progressBar.Hidden = false;
 
             if (Shake && powerMode.ShakeIntensity == 0)
             {
@@ -228,16 +241,6 @@ namespace PowerMode.Cocoa.Views
                     progressBar.Progress -= 2;
                 }
             });
-        }
-
-        public override bool Hidden
-        {
-            get =>base.Hidden;
-            set
-            {
-                levelTextField.Hidden =
-                base.Hidden = value;
-            }
         }
 
         public void ClearAll()

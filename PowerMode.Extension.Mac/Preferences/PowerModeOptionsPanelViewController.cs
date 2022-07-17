@@ -1,136 +1,215 @@
 ﻿using AppKit;
+using Microsoft.VisualStudio.Shell.TableManager;
+using MonoDevelop.Core;
 using MonoDevelop.Ide.Composition;
 using System;
+using System.Linq;
+using static CoreFoundation.DispatchSource;
 
 namespace PowerMode.Extension.Preferences
 {
     class PowerModeOptionsPanelViewController : NSViewController
     {
-		NSButton enableCheckBox, enableShake;
+		NSButton enableCheckBox, enableShake, enableBackground, enablePowerLevel;
 		NSPopUpButton effectsPopupButton;
+        NSTextField durationTextField;
+		NSSlider opacitySlider;
 
-		IDocumentPowerSession session;
+        IPowerModeSession powerSession;
+		IBackgroundSession backgroundSession;
+
+		StackView stackview;
 
         public PowerModeOptionsPanelViewController()
         {
-			session = CompositionManager.Instance.GetExportedValue<IDocumentPowerSession>();
+            powerSession = CompositionManager.Instance.GetExportedValue<IPowerModeSession>();
+            backgroundSession = CompositionManager.Instance.GetExportedValue<IBackgroundSession>();
 
-            var stackview = new StackView();
-			View = stackview;
+            stackview = new StackView();
+            View = stackview;
 
+            CreatePowerModeOptions();
+            var box = new NSBox() { BoxType = NSBoxType.NSBoxSeparator };
+            stackview.AddArrangedSubview(box);
+            ViewHelper.AttachHorizontally(stackview, box);
+            box.HeightAnchor.ConstraintEqualTo(7).Active = true;
+            CreateBackgroundOptions();
+        }
+
+        private void CreateBackgroundOptions()
+        {
+            var backgroundRow = new StackView(NSUserInterfaceLayoutOrientation.Horizontal);
+            stackview.AddArrangedSubview(backgroundRow);
+
+            enableBackground = ViewHelper.CreateCheckBoxCardView(backgroundRow, "Animated Background:", "Enable to activate Animated Background");
+
+            var opacityRow = new StackView(NSUserInterfaceLayoutOrientation.Horizontal);
+            stackview.AddArrangedSubview(opacityRow);
+            opacitySlider = ViewHelper.CreateSliderCardView(opacityRow, "Background Opacity:");
+
+            opacitySlider.MinValue = 0;
+            opacitySlider.MaxValue = 1;
+            opacitySlider.AltIncrementValue = 0.1f;
+
+            durationTextField = new NSTextField();
+            durationTextField.WidthAnchor.ConstraintEqualTo(100).Active = true;
+            ViewHelper.CreateCardRow(stackview, "Duration (frame/s)", durationTextField, new NSView() { TranslatesAutoresizingMaskIntoConstraints = false } );
+
+            NSScrollView scrollView = new NSScrollView() { TranslatesAutoresizingMaskIntoConstraints = false };
+            stackview.AddArrangedSubview(scrollView);
+            ViewHelper.AttachHorizontally(stackview, scrollView);
+            scrollView.HeightAnchor.ConstraintEqualTo(200).Active = true;
+
+            tableView = new NSTableView();
+
+            tableView.AddColumn(new NSTableColumn() { Title  = "Animations" });
+
+            tableDataSource = new TableDataSource();
+            tableView.DataSource = tableDataSource;
+
+            tableDelegate = new TableDelegate();
+            tableView.Delegate = tableDelegate;
+
+            scrollView.DocumentView = tableView;
+
+            //values
+            durationTextField.FloatValue = backgroundSession.Duration;
+
+            enableBackground.State = backgroundSession.IsEnabled ? NSCellStateValue.On : NSCellStateValue.Off;
+
+            opacitySlider.FloatValue = backgroundSession.Opacity;
+
+            RefreshFiles();
+
+            SelectData(backgroundSession.FileName);
+        }
+
+        void RefreshFiles()
+        {
+            string data = GetSelectedData();
+
+            var files = System.IO.Directory.EnumerateFiles(Constants.BackgroundFolder, "*.gif")
+                .Select(s => System.IO.Path.GetFileName(s))
+                .ToArray();
+            Array.Sort(files, StringComparer.InvariantCulture);
+            tableDataSource.Data.Clear();
+            tableDataSource.Data.AddRange(files);
+            tableView.ReloadData();
+
+            SelectData(data);
+        }
+
+        void SelectData(string file)
+        {
+            var index = tableDataSource.Data.IndexOf(file);
+            if (index > -1)
+            {
+                tableView.SelectRow(index, false);
+                tableView.ScrollRowToVisible(index);
+            }
+        }
+
+        string GetSelectedData()
+        {
+            var index = (int)tableView.SelectedRow;
+            string data = null;
+            if (index > -1)
+            {
+                data = tableDataSource.Data[index];
+            }
+            return data;
+        }
+
+        NSTableView tableView;
+        TableDataSource tableDataSource;
+        TableDelegate tableDelegate;
+
+        void CreatePowerModeOptions()
+        {
             var nameRow = new StackView(NSUserInterfaceLayoutOrientation.Horizontal);
-			stackview.AddArrangedSubview(nameRow);
+        stackview.AddArrangedSubview(nameRow);
 
-			enableCheckBox = CreateCheckBoxCardView(nameRow, "Enabled:", "Enable to activate POWER MODE!!!");
+			enableCheckBox = ViewHelper.CreateCheckBoxCardView(nameRow, "Power Mode:", "Enable to activate POWER MODE!!!");
 
 			var effectsRow = new StackView(NSUserInterfaceLayoutOrientation.Horizontal);
-			stackview.AddArrangedSubview(effectsRow);
+        stackview.AddArrangedSubview(effectsRow);
 
-			effectsPopupButton = CreatePopupButtonCardView(effectsRow, "Presets:");
+			effectsPopupButton = ViewHelper.CreatePopupButtonCardView(effectsRow, "Presets:");
 
-			CreateSubLabel(stackview, "Choose between different preset gifs to use when powermode is activated");
-
+            ViewHelper.CreateSubLabel(stackview, "Choose between different preset gifs to use when powermode is activated");
 
 			var shakeRow = new StackView(NSUserInterfaceLayoutOrientation.Horizontal);
-			stackview.AddArrangedSubview(shakeRow);
-			enableShake = CreateCheckBoxCardView(shakeRow, "Shake:", "Enable Shake mode");
-			CreateSubLabel(stackview, "Set false to disable shake when typing");
+        stackview.AddArrangedSubview(shakeRow);
+			enableShake = ViewHelper.CreateCheckBoxCardView(shakeRow, "Shake:", "Enable Shake mode");
+            ViewHelper.CreateSubLabel(stackview, "Set false to disable shake when typing");
 
-			//timeoutTextField = CreateNumericCardView(stackview, "Timeout");
+            //disable specific items
 
-			////Values
-			//timeoutTextField.IntValue = Settings.TimeOut;
+            var powerLevelRow = new StackView(NSUserInterfaceLayoutOrientation.Horizontal);
+            stackview.AddArrangedSubview(powerLevelRow);
+            enablePowerLevel = ViewHelper.CreateCheckBoxCardView(powerLevelRow, "Power Level:", "Enable to show power level");
 
-            enableCheckBox.State = session.IsEnabled ? NSCellStateValue.On : NSCellStateValue.Off;
+            //values
+            enablePowerLevel.State = powerSession.IsLevelVisible ? NSCellStateValue.On : NSCellStateValue.Off;
 
-			enableShake.State = session.ShakeEnabled ? NSCellStateValue.On : NSCellStateValue.Off;
+            enableCheckBox.State = powerSession.IsEnabled ? NSCellStateValue.On : NSCellStateValue.Off;
 
-			foreach (var item in Configurations.Data)
+            enableShake.State = powerSession.ShakeEnabled ? NSCellStateValue.On : NSCellStateValue.Off;
+
+            foreach (var item in Configurations.Data)
             {
-				effectsPopupButton.AddItem(item.Description ?? String.Empty);
-			}
+                effectsPopupButton.AddItem(item.Description ?? String.Empty);
+            }
 
-			effectsPopupButton.SelectItem(session.PowerModeIndex);
-		}
-
-		NSTextField CreateNumericCardView(NSStackView effectsRow, string label)
-		{
-			effectsRow.AddArrangedTitle(label);
-			var effectsPopupButton = CreateNumericTextField();
-			effectsPopupButton.WidthAnchor.ConstraintEqualTo(350).Active = true;
-			effectsRow.AddArrangedSubview(effectsPopupButton);
-			effectsRow.AddArrangedSpace();
-			return effectsPopupButton;
-		}
-
-		NSPopUpButton CreatePopupButtonCardView(NSStackView effectsRow, string label)
-        {
-			effectsRow.AddArrangedTitle(label);
-			var effectsPopupButton = CreatePopupButton();
-			effectsPopupButton.WidthAnchor.ConstraintEqualTo(350).Active = true;
-			effectsRow.AddArrangedSubview(effectsPopupButton);
-			effectsRow.AddArrangedSpace();
-			return effectsPopupButton;
-		}
-
-		NSButton CreateCheckBoxCardView(NSStackView nameRow, string label, string description)
-		{
-			nameRow.AddArrangedTitle(label);
-
-			var enableCheckBox = CreateCheckBox();
-			enableCheckBox.Title = description;
-			nameRow.AddArrangedSubview(enableCheckBox);
-			nameRow.AddArrangedSpace();
-			return enableCheckBox;
-		}
-
-		public void CreateSubLabel(NSStackView stackview, string label)
-        {
-			var descriptionEffectRow = new StackView(NSUserInterfaceLayoutOrientation.Horizontal);
-			stackview.AddArrangedSubview(descriptionEffectRow);
-
-			var descriptionLabel = NSTextField.CreateLabel(label);
-			descriptionLabel.AlphaValue = 0.7f;
-			descriptionLabel.WidthAnchor.ConstraintEqualTo(350).Active = true;
-			descriptionLabel.SetContentCompressionResistancePriority(250, NSLayoutConstraintOrientation.Horizontal);
-			descriptionLabel.LineBreakMode = NSLineBreakMode.ByWordWrapping;
-
-			descriptionEffectRow.AddArrangedTitle(string.Empty);
-			descriptionEffectRow.AddArrangedSubview(descriptionLabel);
-			descriptionEffectRow.AddArrangedSpace();
-		}
-
-		NSButton CreateCheckBox()
-        {
-			var enableCheckBox = new NSButton() { Title = String.Empty, TranslatesAutoresizingMaskIntoConstraints = false, };
-			enableCheckBox.SetButtonType(NSButtonType.Switch);
-			return enableCheckBox;
-		}
-
-		NSTextField CreateNumericTextField()
-		{
-			var enableCheckBox = new NSTextField() { TranslatesAutoresizingMaskIntoConstraints = false, };
-			return enableCheckBox;
-		}
-
-		NSPopUpButton CreatePopupButton()
-		{
-			var enableCheckBox = new NSPopUpButton() { TranslatesAutoresizingMaskIntoConstraints = false, };
-			return enableCheckBox;
-		}
+            effectsPopupButton.SelectItem(powerSession.PowerModeIndex);
+        }
 
         internal void ApplyChanges()
         {
-            session.PowerModeIndex = (int) effectsPopupButton.IndexOfSelectedItem;
-			Settings.SetInt(SettingsPropperties.PowerModeIndex, session.PowerModeIndex);
+            powerSession.PowerModeIndex = (int) effectsPopupButton.IndexOfSelectedItem;
+			Settings.SetInt(SettingsPropperties.PowerModeIndex, powerSession.PowerModeIndex);
 
-            session.IsEnabled = enableCheckBox.State == NSCellStateValue.On;
-			Settings.SetBool(SettingsPropperties.IsEnabled, session.IsEnabled);
+            powerSession.IsEnabled = enableCheckBox.State == NSCellStateValue.On;
+			Settings.SetBool(SettingsPropperties.IsEnabled, powerSession.IsEnabled);
 
-            session.ShakeEnabled = enableShake.State == NSCellStateValue.On;
-			Settings.SetBool(SettingsPropperties.IsEnabled, session.ShakeEnabled);
+            powerSession.IsLevelVisible = enablePowerLevel.State == NSCellStateValue.On;
+            Settings.SetBool(SettingsPropperties.IsLevelVisible, powerSession.IsLevelVisible);
 
-            session.RefreshGameView();
+            powerSession.ShakeEnabled = enableShake.State == NSCellStateValue.On;
+			Settings.SetBool(SettingsPropperties.ShakeEnabled, powerSession.ShakeEnabled);
+
+            powerSession.RefreshGameView();
+
+            //background
+
+            backgroundSession.IsEnabled = enableBackground.State == NSCellStateValue.On;
+            Settings.SetBool(SettingsPropperties.IsBackgroundEnabled, backgroundSession.IsEnabled);
+
+            backgroundSession.Opacity = opacitySlider.FloatValue;
+            Settings.SetFloat(SettingsPropperties.BackgroundOpacity, backgroundSession.Opacity);
+
+            var currentFile = GetSelectedData();
+
+            bool needsReanimate = durationTextField.FloatValue != backgroundSession.Duration ||
+                currentFile != backgroundSession.FileName;
+
+            backgroundSession.Duration = durationTextField.FloatValue;
+            Settings.SetFloat(SettingsPropperties.BackgroundDuration, backgroundSession.Duration);
+
+            try
+            {
+                backgroundSession.FileName = currentFile;
+                Settings.SetString(SettingsPropperties.BackgroundFileName, backgroundSession.FileName);
+
+                if (needsReanimate)
+                    backgroundSession.SetAnimation(backgroundSession.FileName, backgroundSession.Duration, 1024);
+            }
+            catch (Exception ex)
+            {
+                LoggingService.LogError(ex.Message);
+            }
+    
+			backgroundSession.RefreshBackgroundView();
         }
 
         internal bool ValidateChanges()

@@ -2,11 +2,12 @@
 
 namespace PowerMode
 {
-    public interface IDocumentPowerSession
+    public interface IPowerModeSession
     {
         bool ShakeEnabled { get; set; }
         bool IsEnabled { get; set; }
-        bool IsCounterEnabled { get; set; }
+
+        bool IsLevelVisible { get; set; }
 
         int ExplosionAmount { get; set; }
         int ExplosionDelay { get; set; }
@@ -14,7 +15,7 @@ namespace PowerMode
         int PowerModeIndex { get; set; }
 
         void RefreshGameView();
-        void SetTextView(ICocoaTextView view);
+        void Configure(ICocoaTextView view);
     }
 }
 
