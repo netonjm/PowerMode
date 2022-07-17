@@ -16,7 +16,18 @@
      <None Remove="MonoDevelop.SourceEditor2" />
      <None Remove="MonoDevelop.TextEditor" />
      <None Remove="Preferences\" />
+     <None Remove="Resources\liquid.gif" />
+     <None Remove="Resources\matrix.gif" />
      <None Remove="Resources\matrix1.gif" />
+     <None Remove="Resources\plasma.gif" />
+     <None Remove="Resources\plasma2.gif" />
+     <None Remove="Resources\retrowave.gif" />
+     <None Remove="Resources\retrowave1.gif" />
+     <None Remove="Resources\retrowave2.gif" />
+     <None Remove="Resources\retrowave3.gif" />
+     <None Remove="Resources\retrowave4.gif" />
+     <None Remove="Resources\retrowave5.gif" />
+     <None Remove="Resources\space.gif" />
    </ItemGroup>
    <ItemGroup>
      <EmbeddedResource Include="Resources\vs-prefs-power.png">
@@ -37,8 +48,41 @@
      <EmbeddedResource Include="Resources\vs-prefs-power%402x.png">
        <LogicalName>vs-prefs-power%402x.png</LogicalName>
      </EmbeddedResource>
+     <EmbeddedResource Include="Resources\liquid.gif">
+       <LogicalName>liquid.gif</LogicalName>
+     </EmbeddedResource>
+     <EmbeddedResource Include="Resources\matrix.gif">
+       <LogicalName>matrix.gif</LogicalName>
+     </EmbeddedResource>
      <EmbeddedResource Include="Resources\matrix1.gif">
        <LogicalName>matrix1.gif</LogicalName>
+     </EmbeddedResource>
+     <EmbeddedResource Include="Resources\plasma.gif">
+       <LogicalName>plasma.gif</LogicalName>
+     </EmbeddedResource>
+     <EmbeddedResource Include="Resources\plasma2.gif">
+       <LogicalName>plasma2.gif</LogicalName>
+     </EmbeddedResource>
+     <EmbeddedResource Include="Resources\retrowave.gif">
+       <LogicalName>retrowave.gif</LogicalName>
+     </EmbeddedResource>
+     <EmbeddedResource Include="Resources\retrowave1.gif">
+       <LogicalName>retrowave1.gif</LogicalName>
+     </EmbeddedResource>
+     <EmbeddedResource Include="Resources\retrowave2.gif">
+       <LogicalName>retrowave2.gif</LogicalName>
+     </EmbeddedResource>
+     <EmbeddedResource Include="Resources\retrowave3.gif">
+       <LogicalName>retrowave3.gif</LogicalName>
+     </EmbeddedResource>
+     <EmbeddedResource Include="Resources\retrowave4.gif">
+       <LogicalName>retrowave4.gif</LogicalName>
+     </EmbeddedResource>
+     <EmbeddedResource Include="Resources\retrowave5.gif">
+       <LogicalName>retrowave5.gif</LogicalName>
+     </EmbeddedResource>
+     <EmbeddedResource Include="Resources\space.gif">
+       <LogicalName>space.gif</LogicalName>
      </EmbeddedResource>
    </ItemGroup>
    <ItemGroup>

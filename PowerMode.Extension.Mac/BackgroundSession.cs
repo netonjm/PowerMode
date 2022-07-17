@@ -19,7 +19,23 @@ namespace PowerMode
         public static string DefaultBackgroundImageFile =>
           System.IO.Path.Combine(BackgroundFolder, DefaultAnimation);
 
-        public const string DefaultAnimation = "retrowave5.gif";
+        public const string DefaultAnimation = "retrowave.gif";
+
+        public static string[] Files = new string[]
+        {
+            "liquid.gif",
+            "matrix.gif",
+            "matrix1.gif",
+            "plasma.gif",
+            "plasma2.gif",
+            "retrowave.gif",
+            "retrowave1.gif",
+            "retrowave2.gif",
+            "retrowave3.gif",
+            "retrowave4.gif",
+            "retrowave5.gif",
+            "space.gif",
+        };
     }
 
     [Export(typeof(IBackgroundSession))]
@@ -91,22 +107,22 @@ namespace PowerMode
         bool TryCreateIfNotExists()
         {
             var backroundPath = Constants.BackgroundFolder;
-            var animationPath = System.IO.Path.Combine(backroundPath, Constants.DefaultAnimation);
-
+           
             bool result = false;
 
             if (!System.IO.Directory.Exists(backroundPath))
             {
                 System.IO.Directory.CreateDirectory(Constants.BackgroundFolder);
+
+                //create also the default gif
+                foreach (var file in Constants.Files)
+                {
+                    var animationPath = System.IO.Path.Combine(backroundPath, file);
+                    WriteResourceToFile(file, animationPath);
+                }
                 result = true;
             }
 
-            if (!System.IO.File.Exists(animationPath))
-            {
-                //create also the default gif
-                WriteResourceToFile(Constants.DefaultAnimation, animationPath);
-                result = true;
-            }
             return result;
         }
 
