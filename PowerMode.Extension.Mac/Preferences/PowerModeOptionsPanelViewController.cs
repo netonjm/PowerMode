@@ -14,6 +14,7 @@ namespace PowerMode.Extension.Preferences
 		NSPopUpButton effectsPopupButton;
         NSTextField durationTextField;
 		NSSlider opacitySlider;
+        NSButton openDirectoryFolder;
 
         IPowerModeSession powerSession;
 		IBackgroundSession backgroundSession;
@@ -72,6 +73,13 @@ namespace PowerMode.Extension.Preferences
 
             scrollView.DocumentView = tableView;
 
+            openDirectoryFolder = new NSButton() { TranslatesAutoresizingMaskIntoConstraints = false, Title = "Open Folder", BezelStyle = NSBezelStyle.RoundRect };
+            var openDirectoryRow = new StackView(NSUserInterfaceLayoutOrientation.Horizontal);
+            stackview.AddArrangedSubview(openDirectoryRow);
+
+            openDirectoryRow.AddArrangedSpace();
+            openDirectoryRow.AddArrangedSubview(openDirectoryFolder);
+
             //values
             durationTextField.FloatValue = backgroundSession.Duration;
 
@@ -82,6 +90,23 @@ namespace PowerMode.Extension.Preferences
             RefreshFiles();
 
             SelectData(backgroundSession.FileName);
+        }
+
+        public override void ViewWillAppear()
+        {
+            openDirectoryFolder.Activated += OpenDirectoryFolder_Activated;
+            base.ViewWillAppear();
+        }
+
+        public override void ViewWillDisappear()
+        {
+            openDirectoryFolder.Activated -= OpenDirectoryFolder_Activated;
+            base.ViewWillDisappear();
+        }
+
+        private void OpenDirectoryFolder_Activated(object sender, EventArgs e)
+        {
+            NSWorkspace.SharedWorkspace.OpenFile(Constants.BackgroundFolder);
         }
 
         void RefreshFiles()
