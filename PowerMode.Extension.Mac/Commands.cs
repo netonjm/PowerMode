@@ -19,7 +19,11 @@ namespace PowerMode
 
         void Workbench_ActiveDocumentChanged(object sender, MonoDevelop.Ide.Gui.DocumentEventArgs e)
         {
-            ICocoaTextView textView = e.Document.GetContent<ICocoaTextView>();
+            var document = e.Document;
+            if (document == null)
+                return;
+
+            ICocoaTextView textView = document.GetContent<ICocoaTextView>();
 
             IBackgroundSession background = CompositionManager.Instance.GetExportedValue<IBackgroundSession>();
             if (background != null)
